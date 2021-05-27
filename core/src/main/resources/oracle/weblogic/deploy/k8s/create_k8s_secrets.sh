@@ -29,6 +29,14 @@ function create_paired_k8s_secret {
   kubectl -n $NAMESPACE create secret generic ${SECRET_NAME} --from-literal=username=$2 --from-literal=password=$3
   kubectl -n $NAMESPACE label secret ${SECRET_NAME} weblogic.domainUID=${DOMAIN_UID}
 }
+
+function create_user_k8s_secret {
+  SECRET_NAME=$1
+  kubectl -n $NAMESPACE delete secret ${SECRET_NAME} --ignore-not-found
+  kubectl -n $NAMESPACE create secret generic ${SECRET_NAME} $2
+  kubectl -n $NAMESPACE label secret ${SECRET_NAME} weblogic.domainUID=${DOMAIN_UID}
+}
+
 {{#pairedSecrets}}
 
 {{#comments}}
@@ -43,6 +51,14 @@ create_paired_k8s_secret {{{secretName}}} {{{user}}} {{{password}}}
 {{/comments}}
 create_k8s_secret {{{secretName}}} {{{password}}}
 {{/secrets}}
+
+
+{{#userSecrets}}
+
+create_user_k8s_secret {{{secretName}}} "some params"
+
+{{/userSecrets}}
+
 
 LONG_SECRETS_COUNT=${#LONG_SECRETS[@]}
 if [ ${LONG_SECRETS_COUNT} -gt 0 ]; then

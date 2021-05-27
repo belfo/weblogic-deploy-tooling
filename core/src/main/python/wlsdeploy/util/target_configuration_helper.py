@@ -135,6 +135,8 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
         if user_name is None:
             secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
         else:
+            if user_name.startswith('@@SECRET:'):
+                user_name = "<user>"
             paired_secrets.append(_build_secret_hash(secret_name, user_name, PASSWORD_TAG))
 
     # add a secret with a specific comment for runtime encryption
@@ -157,7 +159,10 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
         {'text': exception_helper.get_message('WLSDPLY-01670')}
     ]
     script_hash['longMessageDetails'] = long_messages
-    #_handle_existing_user_secrets(script_hash)
+    _handle_existing_user_secrets(script_hash)
+
+    print 'DEBUG'
+    print script_hash
     return script_hash
 
 
@@ -172,6 +177,7 @@ def _handle_existing_user_secrets(script_hash):
     if variables.get_existing_secrets() is not None:
         for property_name in variables.get_existing_secrets():
             # if it starts with common pattern
+            # property_name is the complete secret name string
             orig_property_name = property_name
             if property_name.find('@@SECRET:@@ENV:DOMAIN_UID@@-') < 0:
                 _add_user_secret(user_secrets, property_name)
@@ -203,10 +209,11 @@ def _handle_existing_user_secrets(script_hash):
                     _add_user_secret(user_secrets, orig_property_name)
 
         if user_secrets:
-            script_hash['user_secrets'] = user_secrets
+            script_hash['userSecrets'] = user_secrets
 
 
 def _add_user_secret(secrets, property):
+
     # strip off @@SECRET: and end @@
     # TODO: future feature
     property = property[9:len(property)-2]
@@ -236,6 +243,10 @@ def _add_user_secret(secrets, property):
                 else:
                     break
             name = remaining_name[i:]
+
+    if name == '__weblogic-credentials__':
+        return
+
     found = False
     if len(secrets) > 0:
         # insert into existing places
