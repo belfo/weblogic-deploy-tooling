@@ -339,9 +339,6 @@ def _build_json_secrets_result(script_hash):
     result['domainUID'] = script_hash['domainUid']
     result['namespace'] = script_hash['namespace']
 
-    # if script_hash['user_secrets']:
-    #     result['user_secrets'] = script_hash['user_secrets']
-
     return result
 
 
