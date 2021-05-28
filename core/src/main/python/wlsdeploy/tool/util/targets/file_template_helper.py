@@ -177,6 +177,9 @@ def _substitute_line(line, template_hash):
     """
     matches = _substitution_pattern.findall(line)
     for token, value in matches:
+        # e.g. fromliterals:keys
+        if value.find(':') > 0:
+            value = value.split(':')[1]
         replacement = dictionary_utils.get_element(template_hash, value)
         if replacement is not None:
             if not isinstance(replacement, dict):
@@ -188,11 +191,12 @@ def _substitute_line(line, template_hash):
 
 def _substitutue_special(line, token, replacement):
     result = ''
-    if token.startswith('[[[from-literal]]]'):
-        token = token[len('[[[from-literal]]]'):]
-        if token == '{{{keys}}}':
+    if token.find(':') > 0:
+        kv_pair = token[3:-3].split(':')
+        if kv_pair[0] == 'fromliterals':
             for key in replacement:
                 result += ('--from-literal=%s=%s ' % (key, replacement[key]))
             line = line.replace(token, result)
     return line
+
 
