@@ -55,7 +55,7 @@ create_k8s_secret {{{secretName}}} {{{password}}}
 
 {{#userSecrets}}
 
-create_user_k8s_secret {{{secretName}}} {{{keys}}}
+create_user_k8s_secret {{{secretName}}} [[[from-literal]]]{{{keys}}}
 
 {{/userSecrets}}
 

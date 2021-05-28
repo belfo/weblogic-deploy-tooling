@@ -188,9 +188,11 @@ def _substitute_line(line, template_hash):
 
 def _substitutue_special(line, token, replacement):
     result = ''
-    if token == '{{{keys}}}':
-        for key in replacement:
-            result += ('--from-literal=%s=%s ' % (key, replacement[key]))
-        line = line.replace(token, result)
+    if token.startswith('[[[from-literal]]]'):
+        token = token[len('[[[from-literal]]]'):]
+        if token == '{{{keys}}}':
+            for key in replacement:
+                result += ('--from-literal=%s=%s ' % (key, replacement[key]))
+            line = line.replace(token, result)
     return line
 

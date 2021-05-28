@@ -161,8 +161,6 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
     script_hash['longMessageDetails'] = long_messages
     _handle_existing_user_secrets(script_hash)
 
-    print 'DEBUG'
-    print script_hash
     return script_hash
 
 
